@@ -58,11 +58,15 @@
       "@ai-sdk/provider-utils": "2.1.6",
       "cookie": "0.7.0",
       "bs58": "5.0.0",
-      "@coral-xyz/anchor": "0.28.0"
+      "@coral-xyz/anchor": "0.28.0",
+      "zod": "3.22.4"
     },
     "patchedDependencies": {
       "@solana-developers/helpers": "patches/@solana-developers__helpers.patch"
-    }
+    },
+    "neverBuiltDependencies": [
+      "@elizaos/plugin-ton"
+    ]
   },
   "engines": {
     "node": "23.3.0"

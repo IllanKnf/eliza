@@ -179,7 +179,7 @@ export abstract class BaseInjectableAction<T> implements InjectableAction<T> {
         if (!parsedObj.success) {
             elizaLogger.error(
                 "Failed to parse content: ",
-                JSON.stringify(parsedObj.error?.flatten())
+                JSON.stringify(parsedObj.success ? undefined : (parsedObj as z.SafeParseError<T>).error)
             );
             return null;
         }
