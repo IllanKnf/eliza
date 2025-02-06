@@ -4,10 +4,15 @@ import { environment } from "./environment";
 
 // Validation des variables d'environnement
 const validateEnvironment = () => {
+    console.log("=== Validating Player Data Plugin Environment ===");
     const requiredEnvVars = {
         PLAYER_DATA_API_KEY: environment.PLAYER_DATA_API_KEY,
         PLAYER_DATA_BASE_URL: environment.PLAYER_DATA_BASE_URL
     };
+    console.log("Environment variables:", {
+        API_KEY: environment.PLAYER_DATA_API_KEY ? "Set" : "Not Set",
+        BASE_URL: environment.PLAYER_DATA_BASE_URL
+    });
 
     Object.entries(requiredEnvVars).forEach(([key, value]) => {
         if (!value) {

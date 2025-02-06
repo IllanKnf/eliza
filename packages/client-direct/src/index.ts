@@ -256,6 +256,7 @@ export class DirectClient {
                     attachments,
                     source: "direct",
                     inReplyTo: undefined,
+                    ...(req.body.walletAddress && { walletAddress: req.body.walletAddress })
                 };
 
                 const userMessage = {

@@ -1,4 +1,4 @@
-import type { Action, IAgentRuntime, Memory, State } from "@elizaos/core";
+import type { Action, IAgentRuntime, Memory, State, Content } from "@elizaos/core";
 import { examples } from "../examples";
 import { fetchPlayerData, formatPlayerDataResponse } from "../services";
 import type { GetPlayerDataRequest, PlayerDataContent } from "../types";
@@ -10,8 +10,16 @@ export const getUserData: Action = {
     examples,
     similes: ["checkstats", "getstats", "playerstats", "gamestats", "progress"],
     validate: async (runtime: IAgentRuntime, message: Memory): Promise<boolean> => {
-        const content = message.content as PlayerDataContent;
-        return !!content?.walletAddress;
+        console.log("=== GET_PLAYER_DATA Validation ===");
+        console.log("Message received:", JSON.stringify(message, null, 2));
+        
+        const walletAddress = message.content?.walletAddress;
+        const isValid = !!walletAddress;
+        
+        console.log("WalletAddress found:", walletAddress);
+        console.log("Is Valid:", isValid);
+        
+        return isValid;
     },
     handler: async (
         runtime: IAgentRuntime,
@@ -20,16 +28,16 @@ export const getUserData: Action = {
         _options: Record<string, unknown>,
         callback?: HandlerCallback
     ) => {
+        console.log("=== GET_PLAYER_DATA Handler ===");
         try {
-            const content = message.content as PlayerDataContent;
-            const walletAddress = content?.walletAddress;
+            const walletAddress = message.content?.walletAddress as string;
             
             if (!walletAddress) {
                 return {
                     success: false,
                     error: "No wallet address provided",
                     response: {
-                        text: "I need your wallet address to check your game stats. Please provide it in your request."
+                        text: "I need your wallet address to check your game stats."
                     }
                 };
             }
@@ -37,17 +45,36 @@ export const getUserData: Action = {
             const data = await fetchPlayerData(walletAddress);
             const formattedResponse = formatPlayerDataResponse(data, walletAddress);
 
+            if (callback) {
+                callback({
+                    text: formattedResponse.text,
+                    content: formattedResponse.data
+                });
+            }
+
             return {
                 success: true,
-                response: formattedResponse
+                response: {
+                    text: formattedResponse.text,
+                    content: formattedResponse.data
+                }
             };
         } catch (error) {
             console.error("Handler Error:", error);
+            const errorMessage = error instanceof Error ? error.message : "Unknown error";
+            
+            if (callback) {
+                callback({
+                    text: `Error: ${errorMessage}`,
+                    content: { error: errorMessage }
+                });
+            }
+
             return {
                 success: false,
-                error: error instanceof Error ? error.message : "Unknown error occurred",
+                error: errorMessage,
                 response: {
-                    text: "I apologize, but I couldn't retrieve your game data at the moment. Please try again later."
+                    text: "Sorry, I couldn't retrieve your game data at the moment."
                 }
             };
         }
