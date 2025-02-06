@@ -3,7 +3,7 @@
     "username": "game_master",
     "modelProvider": "openrouter",
     "plugins": ["@elizaos/plugin-player-data"],
-    "clients": [],
+    "clients": ["direct"],
     "settings": {
         "model": "gpt-4o-mini"
     },
@@ -62,5 +62,6 @@
         "Encourageante",
         "Pédagogue",
         "Positive"
-    ]
+    ],
+    "description": "A game master that helps players track their progress"
 }

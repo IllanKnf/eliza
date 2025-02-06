@@ -15,6 +15,7 @@ import { TwitterClientInterface } from "@elizaos/client-twitter";
 import { AlexaClientInterface } from "@elizaos/client-alexa";
 import { MongoDBDatabaseAdapter } from "@elizaos/adapter-mongodb";
 import { DevaClientInterface } from "@elizaos/client-deva";
+import { playerDataPlugin } from "@elizaos/plugin-player-data";
 
 import { FarcasterClientInterface } from "@elizaos/client-farcaster";
 import { OmniflixPlugin } from "@elizaos/plugin-omniflix";
@@ -160,7 +161,7 @@ import { quickIntelPlugin } from "@elizaos/plugin-quick-intel";
 
 import { trikonPlugin } from "@elizaos/plugin-trikon";
 import arbitragePlugin from "@elizaos/plugin-arbitrage";
-import { playerDataPlugin } from "@elizaos/plugin-player-data";
+import { DirectClientInterface } from "@elizaos/client-direct";
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
 
@@ -795,12 +796,16 @@ export async function initializeClients(
     character: Character,
     runtime: IAgentRuntime
 ) {
-    // each client can only register once
-    // and if we want two we can explicitly support it
     const clients: Record<string, any> = {};
     const clientTypes: string[] =
         character.clients?.map((str) => str.toLowerCase()) || [];
     elizaLogger.log("initializeClients", clientTypes, "for", character.name);
+
+    // Add Direct Client if configured
+    if (clientTypes.includes(Clients.DIRECT)) {
+        const directClient = await DirectClientInterface.start(runtime);
+        if (directClient) clients.direct = directClient;
+    }
 
     // Start Auto Client if "auto" detected as a configured client
     if (clientTypes.includes(Clients.AUTO)) {
