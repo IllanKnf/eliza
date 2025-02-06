@@ -1,0 +1,38 @@
+{
+	"name": "@elizaos/plugin-player-data",
+	"version": "0.1.9",
+	"private": false,
+	"type": "module",
+	"main": "dist/index.js",
+	"module": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsup --format esm --dts",
+		"dev": "tsup --format esm --dts --watch",
+		"clean": "rm -rf dist",
+		"watch": "pnpm clean && pnpm dev"
+	},
+	"dependencies": {
+		"@elizaos/core": "workspace:*"
+	},
+	"peerDependencies": {
+		"@elizaos/core": "workspace:*"
+	},
+	"devDependencies": {
+		"tsup": "^8.0.0",
+		"typescript": "^5.0.0"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"import": {
+				"@elizaos/source": "./src/index.ts",
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			}
+		}
+	}
+}
