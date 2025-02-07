@@ -3,6 +3,7 @@ import { tokenSearchAddressAction } from "./actions/token-search-address";
 import { tokenSearchSymbolAction } from "./actions/token-search-symbol";
 import { walletSearchAddressAction } from "./actions/wallet-search-address";
 import { agentPortfolioProvider } from "./providers/agent-portfolio-provider";
+import { topTradersAction } from "./actions/top-traders";
 
 export const birdeyePlugin: Plugin = {
     name: "birdeye",
@@ -11,6 +12,7 @@ export const birdeyePlugin: Plugin = {
         tokenSearchSymbolAction,
         tokenSearchAddressAction,
         walletSearchAddressAction,
+        topTradersAction,
         // testAllEndpointsAction, // this action can be used to optionally test all endpoints
     ],
     evaluators: [],

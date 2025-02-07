@@ -73,3 +73,10 @@ export interface TraderTransactionsSeekResponse {
         hasNext?: boolean;
     };
 }
+
+interface TraderData {
+    address: string;
+    totalValue: number;
+    profitValue: number;
+    profitPercent: number;
+}
