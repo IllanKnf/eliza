@@ -15,7 +15,6 @@ import { TwitterClientInterface } from "@elizaos/client-twitter";
 import { AlexaClientInterface } from "@elizaos/client-alexa";
 import { MongoDBDatabaseAdapter } from "@elizaos/adapter-mongodb";
 import { DevaClientInterface } from "@elizaos/client-deva";
-import { playerDataPlugin } from "@elizaos/plugin-player-data";
 
 import { FarcasterClientInterface } from "@elizaos/client-farcaster";
 import { OmniflixPlugin } from "@elizaos/plugin-omniflix";
@@ -1310,10 +1309,6 @@ export async function createAgent(
             getSecret(character, "DESK_EXCHANGE_PRIVATE_KEY") ||
             getSecret(character, "DESK_EXCHANGE_NETWORK")
                 ? deskExchangePlugin
-                : null,
-            getSecret(character, "PLAYER_DATA_API_KEY") &&
-            getSecret(character, "PLAYER_DATA_BASE_URL")
-                ? playerDataPlugin
                 : null,
         ]
             .flat()
