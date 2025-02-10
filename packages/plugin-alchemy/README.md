@@ -1,6 +1,25 @@
 # @elizaos/plugin-alchemy
 
-A plugin for ElizaOS that provides access to blockchain data through the Alchemy API.
+A powerful Ethereum blockchain data plugin for ElizaOS that provides comprehensive wallet analysis through the Alchemy API and token price conversions via CoinMarketCap.
+
+## Features
+
+- **Token Balance Tracking**
+  - Native ETH balance
+  - ERC20 token balances
+  - Automatic decimal handling
+  - Token metadata (name, symbol, logo)
+
+- **Price Conversions**
+  - Real-time price conversion to EUR/USD
+  - Support for major tokens
+  - Individual token value calculation
+  - Total wallet value aggregation
+
+- **Asset Transfer History**
+  - Transaction history tracking
+  - Support for ETH, ERC20, and ERC721 transfers
+  - Detailed transfer information
 
 ## Installation
 
@@ -13,15 +32,17 @@ npm install @elizaos/plugin-alchemy
 The plugin requires the following environment variables:
 
 ```env
+# Required Alchemy Configuration
 ALCHEMY_API_KEY=your_api_key_here
 ALCHEMY_NETWORK=ETH_MAINNET  # or another supported network
+
+# Required for Price Conversions
+COINMARKETCAP_API_KEY=your_cmc_api_key_here
 ```
 
 ## Usage
 
-### Character Configuration
-
-To use this plugin in your character configuration:
+### Basic Integration
 
 ```json
 {
@@ -31,86 +52,137 @@ To use this plugin in your character configuration:
 }
 ```
 
-### API Requests
+### Available Actions
 
-When making requests to a character that uses this plugin, you must include a `walletAddress` in the request content.
+#### 1. GET_TOKEN_BALANCES
+Fetches comprehensive wallet information including:
+- Token balances with proper decimal formatting
+- Token metadata (name, symbol, logo)
+- Price conversions in EUR/USD
+- Total wallet value
 
-#### Example Request
-
-```bash
-curl -X POST http://localhost:3001/BlockchainOracle/message \
--H "Content-Type: application/json" \
--d '{
-    "text": "Show me my token balances",
-    "userId": "user123",
-    "userName": "User1",
-    "walletAddress": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
-}'
-```
-
-### Response Format
-
-The plugin returns token information in the following format:
-
+Example Response:
 ```json
 {
-    "text": "Here are your token balances...",
+    "text": "Here are your token balances for wallet 0x123...:\n- Ethereum (ETH)\n  Balance: 0.5\n  Value: €800.00 / $850.00 USD\n\nTotal Wallet Value: €800.00 / $850.00 USD",
     "data": {
-        "address": "0x...",
+        "address": "0x123...",
         "tokens": [
             {
-                "contractAddress": "0x...",
-                "balance": "1000000000000000000",
+                "contractAddress": "0x0000000000000000000000000000000000000000",
+                "balance": "500000000000000000",
                 "metadata": {
                     "decimals": 18,
-                    "name": "USD Coin",
-                    "symbol": "USDC",
+                    "name": "Ethereum",
+                    "symbol": "ETH",
                     "logo": "https://..."
+                },
+                "converted_balance": {
+                    "eur": 800.00,
+                    "usd": 850.00
                 }
+            }
+        ],
+        "totalValue": {
+            "eur": 800.00,
+            "usd": 850.00
+        }
+    }
+}
+```
+
+#### 2. GET_ASSET_TRANSFERS
+Retrieves transaction history including:
+- Transaction hashes
+- From/To addresses
+- Transfer values and asset types
+- Contract details
+
+Example Response:
+```json
+{
+    "text": "Here are your recent transfers...",
+    "data": {
+        "transfers": [
+            {
+                "hash": "0x...",
+                "from": "0x...",
+                "to": "0x...",
+                "value": 1.5,
+                "asset": "ETH"
             }
         ]
     }
 }
 ```
 
-## Actions
+### Supported Tokens
 
-### GET_TOKEN_BALANCES
+The plugin automatically handles price conversions for major tokens including:
+- ETH, WETH, USDT, USDC, DAI
+- LINK, UNI, AAVE, CRV, SNX
+- COMP, MKR, YFI, SUSHI
+- And more...
 
-This action fetches token balances and metadata for a wallet address. It:
-1. Gets all token balances for the wallet
-2. Fetches metadata for each token (name, symbol, decimals)
-3. Returns formatted balances with proper decimal handling
+## Use Cases
 
-### GET_ASSET_TRANSFERS
+1. **Portfolio Tracking**
+   - Real-time wallet value monitoring
+   - Multi-token portfolio analysis
+   - Price tracking in multiple currencies
 
-This action fetches transaction history for a wallet address. It returns:
-1. Transaction hashes
-2. From/To addresses
-3. Values and asset types
-4. Additional transaction details
+2. **Transaction Analysis**
+   - Historical transaction review
+   - Transfer pattern analysis
+   - Asset movement tracking
 
-## Error Handling
+3. **DeFi Integration**
+   - Token balance verification
+   - Smart contract interaction monitoring
+   - DeFi position tracking
 
-- If no wallet address is provided, the plugin will return an error message
-- If the Alchemy API is unreachable, appropriate error messages will be returned
-- For tokens with missing metadata, default values will be used
+4. **Wallet Health Checks**
+   - Balance monitoring
+   - Transaction history review
+   - Asset distribution analysis
+
+## Technical Details
+
+### Price Conversion Flow
+1. Fetches token balances from Alchemy
+2. Filters for known tokens with non-zero balances
+3. Converts each balance using CoinMarketCap API
+4. Aggregates total wallet value
+5. Returns formatted response with individual and total values
+
+### Error Handling
+- Graceful handling of API failures
+- Detailed error logging
+- Fallback for unknown tokens
+- Minimum balance thresholds (1e-8)
 
 ## Development
 
-To contribute or modify this plugin:
+```bash
+# Install dependencies
+npm install
 
-1. Clone the repository
-2. Install dependencies
-3. Set up environment variables
-4. Run tests
+# Run tests
+npm test
+
+# Build
+npm run build
+```
 
 ## Support
 
 For issues or questions:
-1. Check the existing issues
-2. Create a new issue with details about your problem
-3. Include example requests and any error messages
+1. Check existing issues
+2. Create a new issue with:
+   - Wallet address (if public)
+   - Expected vs actual results
+   - Error messages
+   - Environment details
 
 ## License
 
