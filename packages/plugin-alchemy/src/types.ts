@@ -24,7 +24,16 @@ export interface TokenMetadata {
 export interface TokenInfo {
     contractAddress: string;
     balance: string;
-    metadata: TokenMetadata;
+    metadata: {
+        decimals: number;
+        logo: string | null;
+        name: string;
+        symbol: string;
+    };
+    converted_balance?: {
+        eur: number;
+        usd: number;
+    };
 }
 
 export interface EnrichedTokenBalancesResponse {
@@ -60,4 +69,13 @@ export interface AlchemyContent extends Content {
 
 export interface AlchemyRequest extends Memory {
     content: AlchemyContent;
+}
+
+// Price Conversion types
+export interface PriceConversionResponse {
+    data: {
+        quote: {
+            [key: string]: { price: number };
+        };
+    };
 } 

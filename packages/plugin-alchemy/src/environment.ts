@@ -4,7 +4,8 @@ import { Network } from "alchemy-sdk";
 
 export const environment = {
     ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY || '',
-    ALCHEMY_NETWORK: process.env.ALCHEMY_NETWORK || Network.ETH_MAINNET
+    ALCHEMY_NETWORK: process.env.ALCHEMY_NETWORK || Network.ETH_MAINNET,
+    COINMARKETCAP_API_KEY: process.env.COINMARKETCAP_API_KEY || '',
 } as const;
 
 export const alchemyEnvSchema = z.object({
@@ -15,6 +16,7 @@ export const alchemyEnvSchema = z.object({
 export const requiredEnvVars = [
     "ALCHEMY_API_KEY",
     "ALCHEMY_NETWORK",
+    "COINMARKETCAP_API_KEY"
 ] as const;
 
 export type Environment = typeof environment;
