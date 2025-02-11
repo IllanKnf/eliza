@@ -1,5 +1,5 @@
 import { environment } from './environment';
-import type { GetPlayerDataResponse, PlayerStats } from './types';
+import type { PlayerStats } from './types';
 
 export async function fetchPlayerData(walletAddress: string): Promise<any> {
     const url = new URL(`${environment.PLAYER_DATA_BASE_URL}/ai-agent/${walletAddress}`);
@@ -20,31 +20,19 @@ export async function fetchPlayerData(walletAddress: string): Promise<any> {
     return response.json();
 }
 
-export function formatPlayerDataResponse(apiResponse: any, walletAddress: string): GetPlayerDataResponse {
+export function extractPlayerStats(apiResponse: any): PlayerStats {
     const universeData = apiResponse.user.universes[0];
     const stats = universeData.stats;
     
-    const playerStats: PlayerStats = {
+    return {
         gamesPlayed: stats.gamesPlayed,
         gamesFinished: stats.gamesFinished,
+        gamesDied: stats.gamesDied,
         scoreAth: stats.scoreAth,
         timePlayed: stats.timePlayed,
         credits: universeData.credits,
-        skins: universeData.skins
-    };
-
-    return {
-        text: `Here's your game data for wallet ${walletAddress}:\n` +
-              `- Games Played: ${playerStats.gamesPlayed}\n` +
-              `- Games Finished: ${playerStats.gamesFinished}\n` +
-              `- Highest Score: ${playerStats.scoreAth}\n` +
-              `- Total Time Played: ${playerStats.timePlayed} seconds\n` +
-              `- Credits: ${playerStats.credits}\n` +
-              `- Skins Owned: ${playerStats.skins.length}`,
-        data: {
-            apiResponse,
-            walletAddress,
-            stats: playerStats
-        }
+        skins: universeData.skins,
+        fastestGame: stats.fastestGame,
+        longestGame: stats.longestGame
     };
 } 

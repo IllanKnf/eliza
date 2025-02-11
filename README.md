@@ -129,7 +129,7 @@ For detailed instructions on using the start script, including character managem
 1. Open `packages/core/src/defaultCharacter.ts` to modify the default character. Uncomment and edit.
 
 2. To load custom characters:
-    - Use `pnpm start --characters="path/to/your/character.json"`
+    - Use `pnpm start --characters="path/to/your/character.json"` (example: `pnpm start --characters=""game-master.character.json"`)"
     - Multiple character files can be loaded simultaneously
 3. Connect with X (Twitter)
     - change `"clients": []` to `"clients": ["twitter"]` in the character file to connect with X
