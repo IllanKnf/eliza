@@ -13,6 +13,7 @@ npm install @elizaos/plugin-player-data
 The plugin requires the following environment variables:
 
 ```env
+OPENROUTER_API_KEY=your_api_key_here
 PLAYER_DATA_API_KEY=your_api_key_here
 PLAYER_DATA_BASE_URL=https://api.pourriv.com
 ```
