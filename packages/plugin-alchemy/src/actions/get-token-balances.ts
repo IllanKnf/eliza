@@ -50,7 +50,28 @@ export const getTokenBalancesAction: Action = {
                 };
             }
 
-            const data = await getTokenBalances(walletAddress);
+            // Récupérer d'abord depuis la base de données
+            const db = runtime.getDatabaseAdapter();
+            const recentSnapshot = await db.query(`
+                SELECT ws.*, tp.*, tm.*
+                FROM wallet_snapshots ws
+                JOIN token_positions tp ON tp.snapshot_id = ws.id
+                JOIN token_metadata tm ON tm.contract_address = tp.token_address
+                WHERE ws.wallet_address = ?
+                AND ws.timestamp >= datetime('now', '-5 minutes')
+                ORDER BY ws.timestamp DESC
+                LIMIT 1
+            `, [walletAddress]);
+
+            let data;
+            if (recentSnapshot.length > 0) {
+                // Utiliser les données en cache
+                data = formatSnapshotToBalanceResponse(recentSnapshot);
+            } else {
+                // Sinon faire l'appel API et sauvegarder
+                data = await getTokenBalances(walletAddress, db, { saveSnapshot: true });
+            }
+
             const formattedResponse = formatTokenBalancesResponse(data, walletAddress);
 
             if (callback) {
@@ -100,3 +121,24 @@ export const getTokenBalancesAction: Action = {
         return isValid;
     }
 }; 
+
+// Ajouter la fonction manquante
+function formatSnapshotToBalanceResponse(snapshot: any[]): EnrichedTokenBalancesResponse {
+    return {
+        address: snapshot[0].wallet_address,
+        tokens: snapshot.map(row => ({
+            contractAddress: row.token_address,
+            balance: row.balance,
+            metadata: {
+                decimals: row.decimals,
+                logo: row.logo_url,
+                name: row.name,
+                symbol: row.symbol
+            },
+            converted_balance: row.price_usd && row.price_eur ? {
+                usd: row.value_usd,
+                eur: row.value_eur
+            } : undefined
+        }))
+    };
+}
