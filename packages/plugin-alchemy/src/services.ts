@@ -8,7 +8,6 @@ import type {
     TokenInfo,
     PriceConversionResponse
 } from "./types";
-import { IDatabaseAdapter } from "@elizaos/core";
 
 // Liste des tokens connus sur CoinMarketCap
 const KNOWN_TOKENS = new Set([
@@ -16,11 +15,7 @@ const KNOWN_TOKENS = new Set([
     'COMP', 'MKR', 'YFI', 'SUSHI', 'BAT', '1INCH', 'ENJ', 'MATIC', 'LRC', 'BAL'
 ]);
 
-export async function getTokenBalances(
-    walletAddress: string,
-    db?: IDatabaseAdapter,
-    options: { saveSnapshot?: boolean } = {}
-): Promise<EnrichedTokenBalancesResponse> {
+export async function getTokenBalances(walletAddress: string): Promise<EnrichedTokenBalancesResponse> {
     const alchemy = new Alchemy({
         apiKey: environment.ALCHEMY_API_KEY,
         network: Network[environment.ALCHEMY_NETWORK as keyof typeof Network] || Network.ETH_MAINNET
@@ -118,80 +113,12 @@ export async function getTokenBalances(
             }
         }
 
-        if (db && options.saveSnapshot) {
-            await saveWalletSnapshot(walletAddress, tokens, db);
-        }
-
         return {
             address: walletAddress,
             tokens
         };
     } catch (error) {
         throw new Error(`Failed to fetch token balances: ${error.message}`);
-    }
-}
-
-async function saveWalletSnapshot(
-    walletAddress: string, 
-    tokens: TokenInfo[], 
-    db: IDatabaseAdapter
-) {
-    const blockNumber = await getCurrentBlockNumber();
-    
-    // Calculer la valeur totale du portefeuille
-    const totalValue = tokens.reduce((acc, token) => ({
-        usd: acc.usd + (token.converted_balance?.usd || 0),
-        eur: acc.eur + (token.converted_balance?.eur || 0)
-    }), { usd: 0, eur: 0 });
-
-    // Insérer le snapshot
-    const result = await db.execute(
-        `INSERT INTO wallet_snapshots (
-            wallet_address, block_number, total_value_usd, total_value_eur
-        ) VALUES (?, ?, ?, ?)
-        RETURNING id`,
-        [walletAddress, blockNumber, totalValue.usd, totalValue.eur]
-    );
-
-    const snapshotId = result[0].id;
-
-    // Insérer chaque position
-    for (const token of tokens) {
-        await db.execute(
-            `INSERT INTO token_positions (
-                snapshot_id, token_address, balance, 
-                price_usd, price_eur, value_usd, value_eur
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [
-                snapshotId,
-                token.contractAddress,
-                token.balance,
-                token.converted_balance?.usd || null,
-                token.converted_balance?.eur || null,
-                token.converted_balance?.usd || null,
-                token.converted_balance?.eur || null
-            ]
-        );
-
-        // Mettre à jour ou insérer les métadonnées du token
-        await db.execute(
-            `INSERT INTO token_metadata (
-                contract_address, name, symbol, decimals, logo_url
-            ) VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT(contract_address) DO UPDATE SET
-                name = excluded.name,
-                symbol = excluded.symbol,
-                decimals = excluded.decimals,
-                logo_url = excluded.logo_url,
-                last_updated = CURRENT_TIMESTAMP`,
-            [
-                token.contractAddress,
-                token.metadata.name,
-                token.metadata.symbol,
-                token.metadata.decimals,
-                token.metadata.logo
-            ]
-        );
     }
 }
 
